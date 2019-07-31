@@ -46,7 +46,6 @@ model_checkpoint_map = {
     'resnet_v1_50': os.path.join('./checkpoints/', 'resnet_v1_50','model.ckpt-49800'),
     'vgg_16': os.path.join('./checkpoints/', 'vgg_16', 'vgg_16.ckpt'),
     'InceptionV3': os.path.join('./checkpoints/', 'inception_v3', 'inception_v3.ckpt'),
-    'InceptionResnetV2': os.path.join('./checkpoints/', 'inception_resnet_v2', 'model.ckpt-193019'),
 }
 
 dev=pd.read_csv(os.path.join(args.dev_dir,'dev.csv'))
