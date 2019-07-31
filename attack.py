@@ -4,19 +4,18 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import tensorflow as tf
-from tensorflow.contrib.slim.nets import resnet_v1
 import vgg
 import numpy as np
-#from scipy.misc import imread
 import pandas as pd
-from PIL import Image
 import sys
 import argparse
+from PIL import Image
+from tensorflow.contrib.slim.nets import resnet_v1
+slim = tf.contrib.slim
 
 config = tf.ConfigProto()
 config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
 
-slim = tf.contrib.slim
 parser = argparse.ArgumentParser()
 parser.add_argument('-a', '--alpha', help='per step decrease',type=float, default=300)
 parser.add_argument('-i', '--num_iter', help='num_iter', type=int, default=40)
@@ -45,7 +44,6 @@ model_checkpoint_map = {
     'resnet_v1_50': os.path.join('./checkpoints/', 'resnet_v1_50','model.ckpt-49800'),
     'vgg_16': os.path.join('./checkpoints/', 'vgg_16', 'vgg_16.ckpt'),
     'InceptionV3': os.path.join('./checkpoints/', 'inception_v3', 'inception_v3.ckpt'),
-    'InceptionResnetV2': os.path.join('./checkpoints/', 'inception_resnet_v2', 'model.ckpt-193019'),
 }
 
 dev=pd.read_csv(os.path.join(args.dev_dir,'dev.csv'))
@@ -73,17 +71,14 @@ def Graph(x, y, res_weight,vgg_weight,inc_weight,y_pred_res,y_pred_vgg,y_pred_in
     with slim.arg_scope(vgg.vgg_arg_scope()) as scope:
         logits_vgg_16, end_points_vgg_16 = vgg.vgg_16(x_int, num_classes=num_classes, is_training=False, scope='vgg_16',reuse=tf.AUTO_REUSE)
         end_points_vgg_16['logits'] = end_points_vgg_16['vgg_16/fc8']
-
-    with slim.arg_scope(inception.inception_v3_arg_scope()):
-        logits_inception_v3, end_points_inception_v3 = inception.inception_v3(x_int, num_classes=110,reuse=tf.AUTO_REUSE, is_training=False, scope='InceptionV3')
- 
+        
     one_hot = tf.one_hot(y, num_classes)
 
-    sum_prob= tf.clip_by_value((res_weight*y_pred_res+ vgg_weight*y_pred_vgg+inc_weight*y_pred_inc),0,args.confidence)
+    sum_prob= tf.clip_by_value((res_weight*y_pred_res+ vgg_weight*y_pred_vgg),0,args.confidence)
     logits_resnet = end_points_res_v1_50['logits']
     logits_vgg = end_points_vgg_16['logits']
-    logits_inc = logits_inception_v3
-    logits = res_weight*logits_resnet+ vgg_weight*logits_vgg+inc_weight*logits_inc
+    
+    logits = res_weight*logits_resnet+ vgg_weight*logits_vgg
     cross_entropy = tf.losses.softmax_cross_entropy(one_hot,logits,label_smoothing=0.0,weights=1.0)
     grad = tf.gradients([cross_entropy], [x])[0]
     #grad = tf.layers.dropout(grad,noise_shape=[1,299,299,3])
@@ -128,10 +123,6 @@ def Eval(x_img_224,x_img_299,y):
         end_points_vgg_16['probs'] = tf.nn.softmax(end_points_vgg_16['logits'])
         vgg_label=tf.argmax(end_points_vgg_16['probs'][0],-1)
         y_v=end_points_vgg_16['probs'][0][y[0]]
-
-    input_x_img_299 = x_img_299*2/255-1
-    with slim.arg_scope(inception.inception_v3_arg_scope()):
-        logits_inception_v3, end_points_inception_v3 = inception.inception_v3(x_int, num_classes=110,reuse=tf.AUTO_REUSE, is_training=False, scope='InceptionV3')
 
     return res_label,vgg_label,y_r,y_v
 
