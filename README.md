@@ -2,7 +2,7 @@
 ### Efficient Project Gradient Descent for Ensemble Adversarial Attack
 *Fisrt Place Solution for IJCAI19 Targeted Adversarial Attack competition; Sumbitted to IJCAI19 AIBS WORKSHOP* 
 
-*https://arxiv.org/abs/1906.03333; *
+https://arxiv.org/abs/1906.03333;
 
 Fanyou Wu, Rado Gazo, Eva Haviarova and Bedrich Benes @ Purdue University
 
