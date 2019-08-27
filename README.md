@@ -10,7 +10,7 @@ Recent advances show that deep neural networks are not robust to deliberately cr
 
 
 ### Usage
-* Download model parameters (Update Soon) 
+* [Download](https://purdue0-my.sharepoint.com/:u:/g/personal/wu1297_purdue_edu/ESqaQdzuv-dEsGY4hlJY6S0BH7Dmosd0UxK2JfnkmH9s8g?e=bQwtEf) model parameters
 * Use Docker to set environment. `docker build`
 * Use `run.sh ./dev_data ./output` to run codes.
 
